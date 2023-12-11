@@ -76,37 +76,22 @@ export class ProjectUsersService {
   }
 
   async getProjectUsers() {
-    const responseData = [];
-    const projectUsers = await this.projectUsersRepository.find();
-    for (const projectUser of projectUsers) {
-      const projectData = await this.projectService.findById(projectUser.projectId)
-
-      const data = {
-        id: projectUser.id,
-        name: projectData.name,
-        referringEmployeeId: projectData.referringEmployeeId,
-      };
-      responseData.push(data);
-    }
-    return responseData;
+    const projectUsers = await this.projectUsersRepository.find({
+      relations: {
+        project: true,
+      }
+    });
+    return projectUsers;
   }
 
   async getMyProjects(userId: string) {
-    const responseData = [];
     const projectUsers = await this.projectUsersRepository.find({
       where: { userId: userId },
+      relations: {
+        project: true,
+      }
     });
-    for (const projectUser of projectUsers) {
-      const projectData = await this.projectService.findById(projectUser.projectId)
-
-      const data = {
-        id: projectUser.id,
-        name: projectData.name,
-        referringEmployeeId: projectData.referringEmployeeId,
-      };
-      responseData.push(data);
-    }
-    return responseData;
+    return projectUsers;
   }
 
   async findById(id: string) {

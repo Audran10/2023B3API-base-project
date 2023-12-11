@@ -33,16 +33,14 @@ export class ProjectUsersController {
 
     @UseGuards(AuthGuard)
     @Get('/')
-    async getProjectUsers(@Res() res: Response, @Request() req: any) {
+    async getProjectUsers(@Request() req: any) {
         const userRole = await this.usersService.userRole(req.user.sub);
-
         if (userRole === 'Admin' || userRole === 'ProjectManager') {
-            const projectUsers = await this.projectsUsersService.getProjectUsers();
-            res.status(200).json(projectUsers);
-        } else if (userRole === 'Employee') {
-            const projectUsers = await this.projectsUsersService.getMyProjects(req.user.sub);
-            res.status(200).json(projectUsers);
-        }
+            return this.projectsUsersService.getProjectUsers();
+        } 
+        console.log("ID: ", req.user.sub);
+        return this.projectsUsersService.getMyProjects(req.user.sub);
+        
     }
 
     @UseGuards(AuthGuard)
