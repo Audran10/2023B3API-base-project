@@ -2,6 +2,8 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectUsers } from '../models/project-users.entity';
@@ -16,8 +18,6 @@ export class ProjectUsersService {
   constructor(
     @InjectRepository(ProjectUsers)
     private readonly projectUsersRepository: Repository<ProjectUsers>,
-    private readonly projectService: ProjectsService,
-    private readonly UsersService: UsersService,
   ) {}
 
   async UserAlreadyInProjectInSameDate(userId: string, startDate: Date, endDate: Date) {
@@ -49,49 +49,26 @@ export class ProjectUsersService {
 
   async addUserToProject(projectUserData: addUserToProjectDto) {
     const newProjectUser = this.projectUsersRepository.create(projectUserData);
-    await this.projectUsersRepository.save(newProjectUser);
-
-    const user = await this.UsersService.findById(newProjectUser.userId);
-    delete user.password;
-
-    const project = await this.projectService.findById(newProjectUser.projectId)
-    const referringEmployee = await this.UsersService.findById(project.referringEmployeeId);
-    delete referringEmployee.password;
-
-    const data = {
-      id: newProjectUser.id,
-      startDate: newProjectUser.startDate,
-      endDate: newProjectUser.endDate,
-      userId: newProjectUser.userId,
-      user: user,
-      projectId: newProjectUser.projectId,
-      project: {
-        id: project.id,
-        name: project.name,
-        referringEmployeeId: project.referringEmployeeId,
-        referringEmployee: referringEmployee,
+    const savedPU = await this.projectUsersRepository.save(newProjectUser);
+    return this.projectUsersRepository.findOne({
+      where: { id: savedPU.id },
+      relations: {
+        project: {
+          referringEmployee: true,
+        },
+        user: true,
       },
-    };
-    return data;
+    });
   }
 
   async getProjectUsers() {
-    const projectUsers = await this.projectUsersRepository.find({
-      relations: {
-        project: true,
-      }
-    });
-    return projectUsers;
+    return this.projectUsersRepository.find();
   }
 
   async getMyProjects(userId: string) {
-    const projectUsers = await this.projectUsersRepository.find({
+    return this.projectUsersRepository.find({
       where: { userId: userId },
-      relations: {
-        project: true,
-      }
     });
-    return projectUsers;
   }
 
   async findById(id: string) {

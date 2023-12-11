@@ -5,6 +5,10 @@ import { UsersModule } from './modules/users.module';
 import { User } from './models/users.entity';
 import { ProjectsModule } from './modules/projects.module';
 import { ProjectUsersModule } from './modules/project-users.module';
+import { Project } from './models/projects.entity';
+import { ProjectUsers } from './models/project-users.entity';
+import { Event } from './models/events.entity';
+import { EventsModule } from './modules/events.module';
 
 @Module({
   imports: [
@@ -18,7 +22,7 @@ import { ProjectUsersModule } from './modules/project-users.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User],
+        entities: [User, Project, ProjectUsers, Event],
         synchronize: true,
         autoLoadEntities: true,
       }),
@@ -27,6 +31,7 @@ import { ProjectUsersModule } from './modules/project-users.module';
     UsersModule,
     ProjectsModule,
     ProjectUsersModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],

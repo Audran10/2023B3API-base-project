@@ -15,23 +15,19 @@ export class UsersService {
   ) {}
 
   async findAllUsers(): Promise<User[]> {
-    const allUsers = await this.userRepository.find();
-    return allUsers.map((user) => {
-      delete user.password;
-      return user;
-    });
+    return this.userRepository.find();
   }
 
   async findByUsername(username: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({ where: { username } });
   }
 
   async findByEmail(email: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ where: { email }, select: ['id', 'username', 'email', 'role', 'password'] });
   }
 
   async findById(id: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { id } });
+    return this.userRepository.findOne({ where: { id } });
   }
 
   async login(email, password) {
@@ -53,7 +49,7 @@ export class UsersService {
       ...userData,
       password: hashedPassword,
     });
-    return await this.userRepository.save(newUser);
+    return this.userRepository.save(newUser);
   }
 
   async userRole(id: string): Promise<string> {

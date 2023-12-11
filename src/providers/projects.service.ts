@@ -1,17 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, forwardRef, Inject, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../models/projects.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateProjectDto } from '../dto/projects/create-project.dto';
 import { User } from '../models/users.entity';
-import { UsersService } from './users.service';
+import { ProjectUsersService } from './project-users.service';
 
 @Injectable()
 export class ProjectsService {
     constructor(
         @InjectRepository(Project)
         private readonly projectRepository: Repository<Project>,
-        private readonly UsersService: UsersService,
+        private projectUsersService: ProjectUsersService,
     ) {}
 
     async createProject(projectData: CreateProjectDto, referringEmployee: User): Promise<Project> {
@@ -21,12 +21,12 @@ export class ProjectsService {
                 referringEmployee,
             });
 
-            return await this.projectRepository.save(newProject);
+            return this.projectRepository.save(newProject);
         }
     }
 
     async findById(id: string): Promise<Project> {
-        return await this.projectRepository.findOne({ where: { id } });
+        return this.projectRepository.findOne({ where: { id } });
     }
 
     async getAllProjects() {
@@ -41,16 +41,36 @@ export class ProjectsService {
         return projects;
     }
 
-    async getProjectsByEmployeeId(employeeId: string) {
+    async getProjectsByEmployeeId(employeeId: string){
+        const projectsUsers = (await this.projectUsersService.getProjectUsers()).filter((projectUser) => {
+            return projectUser.userId === employeeId;
+        });
+        const projectIds = projectsUsers.map((projectUser) => projectUser.projectId);
+
         const projects = await this.projectRepository.find({
-            where: { referringEmployeeId: employeeId },
+            where: {
+                id: In(projectIds),
+            },
             relations: {
                 referringEmployee: true,
             },
         });
-        projects.forEach((project) => {
-            delete project.referringEmployee.password;
-        });
+
         return projects;
+    }
+
+    async getOneProjectByEmployeeId(employeeId: string, projectId: string){
+        const project = await this.findById(projectId);
+        if (!project) {
+            throw new NotFoundException();
+        }
+
+        const projectsUsers = (await this.projectUsersService.getProjectUsers()).filter((projectUser) => {
+            return projectUser.userId === employeeId && projectUser.projectId === projectId;
+        });
+        if (projectsUsers.length === 0) {
+            throw new ForbiddenException();
+        }
+        return project;
     }
 }

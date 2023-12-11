@@ -8,11 +8,15 @@ import { ProjectsService } from "../providers/projects.service";
 
 @Controller('project-users')
 export class ProjectUsersController {
-    constructor(private readonly projectsUsersService: ProjectUsersService, private readonly usersService: UsersService, private readonly projectsService: ProjectsService) {}
+    constructor(
+        private readonly projectsUsersService: ProjectUsersService,
+        private readonly usersService: UsersService, 
+        private readonly projectsService: ProjectsService
+    ) {}
 
     @UseGuards(AuthGuard)
     @Post('/')
-    async adduserToProject(@Body() projectUserData: addUserToProjectDto, @Res() res: Response, @Request() req: any) {
+    async adduserToProject(@Body() projectUserData: addUserToProjectDto, @Request() req: any) {
         const userRole = await this.usersService.userRole(req.user.sub);
 
         if (!await this.projectsService.findById(projectUserData.projectId) || !await this.usersService.findById(projectUserData.userId)) {
@@ -24,8 +28,7 @@ export class ProjectUsersController {
         }
 
         if (userRole === 'Admin' || userRole === 'ProjectManager') {
-            const newProjectUser = await this.projectsUsersService.addUserToProject(projectUserData);
-            res.status(201).json(newProjectUser);
+            return this.projectsUsersService.addUserToProject(projectUserData);
         } else {
             throw new UnauthorizedException();
         }
@@ -38,23 +41,19 @@ export class ProjectUsersController {
         if (userRole === 'Admin' || userRole === 'ProjectManager') {
             return this.projectsUsersService.getProjectUsers();
         } 
-        console.log("ID: ", req.user.sub);
         return this.projectsUsersService.getMyProjects(req.user.sub);
         
     }
 
     @UseGuards(AuthGuard)
     @Get('/:id')
-    async getProjectUser(@Res() res: Response, @Request() req: any) {
+    async getProjectUser(@Request() req: any) {
         const userRole = await this.usersService.userRole(req.user.sub);
 
         if (userRole === 'Admin' || userRole === 'ProjectManager') {
-            const projectUser = await this.projectsUsersService.findById(req.params.id);
-            res.status(200).json(projectUser);
-        } else if (userRole === 'Employee') {
-            const projectUser = await this.projectsUsersService.findById(req.user.sub);
-            res.status(200).json(projectUser);
+            return this.projectsUsersService.findById(req.params.id);
         }
+        return this.projectsUsersService.findById(req.user.sub);
     }
 
 }

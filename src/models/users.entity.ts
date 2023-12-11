@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Project } from './projects.entity';
 import { ProjectUsers } from './project-users.entity';
+import { Event } from './events.entity';
 
 @Entity()
 export class User {
@@ -13,7 +14,7 @@ export class User {
   @Column()
   public email!: string;
 
-  @Column()
+  @Column({ select: false })
   public password!: string;
 
   @Column({
@@ -28,4 +29,7 @@ export class User {
 
   @OneToMany(() => ProjectUsers, (projectsUser) => projectsUser.user)
   public projectsUsers!: ProjectUsers[];
+
+  @OneToMany(() => Event, (event) => event.user)
+  public events!: Event[];
 }

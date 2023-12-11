@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from "@nestjs/common";
+import { Module, ValidationPipe, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ProjectUsers } from "../models/project-users.entity";
 import { JwtModule } from "@nestjs/jwt";
@@ -17,7 +17,7 @@ import { ProjectsModule } from "./projects.module";
             signOptions: { expiresIn: '1d' },
         }),
         UsersModule,
-        ProjectsModule,
+        forwardRef(() => ProjectsModule),
     ],
     controllers: [ProjectUsersController],
     providers: [
@@ -29,5 +29,6 @@ import { ProjectsModule } from "./projects.module";
             }),
         },
     ],
+    exports: [ProjectUsersService],
 })
 export class ProjectUsersModule {}

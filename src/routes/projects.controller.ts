@@ -39,16 +39,25 @@ export class ProjectsController {
   async getAllProjects(@Request() req: any) {
     const userRole = await this.usersService.userRole(req.user.sub);
 
+
     if (userRole === 'Admin' || userRole === 'ProjectManager') {
-      return this.projectsService.getAllProjects();
+      const projects = await this.projectsService.getAllProjects();
+      if (!projects) {
+        throw new NotFoundException();
+      }
+      return projects;
     }
-    console.log("Employee", await this.projectsService.getProjectsByEmployeeId(req.user.sub));
-    return this.projectsService.getProjectsByEmployeeId(req.user.sub);
+    
+    const projects = await this.projectsService.getProjectsByEmployeeId(req.user.sub);
+    if (!projects) {
+      throw new NotFoundException();
+    }
+    return projects;
   }
 
   @UseGuards(AuthGuard)
   @Get('/:id')
-  async getProject(@Res() res: Response, @Request() req: any) {
+  async getProject(@Request() req: any) {
     const userRole = await this.usersService.userRole(req.user.sub);
 
     if (userRole === 'Admin' || userRole === 'ProjectManager') {
@@ -56,16 +65,9 @@ export class ProjectsController {
       if (!project) {
         throw new NotFoundException();
       }
-      return res.status(200).json(project);
+      return project;
     }
 
-    const project = await this.projectsService.findById(req.params.id);
-    if (!project) {
-      throw new NotFoundException();
-    }
-    if (project.referringEmployeeId !== req.user.sub) {
-      throw new ForbiddenException();
-    }
-    return res.status(200).json(project);
+    return this.projectsService.getOneProjectByEmployeeId(req.user.sub, req.params.id);
   }
 }
