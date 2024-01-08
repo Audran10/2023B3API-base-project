@@ -1,17 +1,12 @@
 import {
-  ConflictException,
   Injectable,
   NotFoundException,
-  Inject,
-  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectUsers } from '../models/project-users.entity';
 import { addUserToProjectDto } from '../dto/project-users/add-user-to-project.dto';
 import { Repository } from 'typeorm';
 import * as dayjs from 'dayjs';
-import { ProjectsService } from './projects.service';
-import { UsersService } from './users.service';
 
 @Injectable()
 export class ProjectUsersService {
@@ -65,9 +60,12 @@ export class ProjectUsersService {
     return this.projectUsersRepository.find();
   }
 
-  async getMyProjects(userId: string) {
+  async getMyProjects(userId: string, includeProject: boolean = false) {
     return this.projectUsersRepository.find({
       where: { userId: userId },
+      relations: includeProject ? {
+        project: true,
+      } : undefined,
     });
   }
 

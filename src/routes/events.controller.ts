@@ -22,7 +22,15 @@ export class EventsController {
     @Post('/:id/validate')
     async validateEvent(@Request() req: any) {
         const user = await this.usersService.findById(req.user.sub);
+        // console.log(await this.eventsService.changeStatusEvent(req.params.id, 'Accepted', user));
         return this.eventsService.changeStatusEvent(req.params.id, 'Accepted', user);
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('/:id/decline')
+    async declineEvent(@Request() req: any) {
+        const user = await this.usersService.findById(req.user.sub);
+        return this.eventsService.changeStatusEvent(req.params.id, 'Declined', user);
     }
 
     @UseGuards(AuthGuard)

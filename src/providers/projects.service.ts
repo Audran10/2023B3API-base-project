@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, forwardRef, Inject, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../models/projects.entity';
 import { In, Repository } from 'typeorm';

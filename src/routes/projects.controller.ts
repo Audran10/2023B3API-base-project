@@ -1,10 +1,9 @@
-import { Body, Controller, Post, Res, UseGuards, Request, UnauthorizedException, Get, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { Response, response } from 'express';
+import { Body, Controller, Post, Res, UseGuards, Request, UnauthorizedException, Get, NotFoundException } from '@nestjs/common';
+import { Response } from 'express';
 import { ProjectsService } from '../providers/projects.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateProjectDto } from '../dto/projects/create-project.dto';
 import { UsersService } from '../providers/users.service';
-import { NotFoundError } from 'rxjs';
 
 @Controller('projects')
 export class ProjectsController {

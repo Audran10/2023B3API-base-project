@@ -84,27 +84,31 @@ export class EventsService {
         }
 
         if (user.role === 'ProjectManager') {
-            const projectsUser = await this.projectUsersService.getMyProjects(user.id);
+            const projectsUser = await this.projectUsersService.getMyProjects(event.userId, true);
             for (const projectUser of projectsUser) {
                 const startDate = dayjs(projectUser.startDate);
                 const endDate = dayjs(projectUser.endDate);
                 const eventDate = dayjs(event.date);
-                if (eventDate.isAfter(startDate) && eventDate.isBefore(endDate)) {
+                if ((eventDate.isSame(startDate) || eventDate.isAfter(startDate)) && 
+                (eventDate.isSame(endDate) || eventDate.isBefore(endDate)) && 
+                projectUser.project.referringEmployeeId === user.id) {
                     return this.EventsRepository.save({
                         ...event,
                         eventStatus: status,
                     });
+                } else {
+                    throw new UnauthorizedException();
                 }
             }
-            throw new UnauthorizedException();
         }
 
-        const projectsUser = await this.projectUsersService.getMyProjects(user.id);
+        const projectsUser = await this.projectUsersService.getMyProjects(event.userId);
         for (const projectUser of projectsUser) {
             const startDate = dayjs(projectUser.startDate);
             const endDate = dayjs(projectUser.endDate);
             const eventDate = dayjs(event.date);
-            if (eventDate.isAfter(startDate) && eventDate.isBefore(endDate)) {
+            if ((eventDate.isSame(startDate) || eventDate.isAfter(startDate)) &&
+            (eventDate.isSame(endDate) || eventDate.isBefore(endDate))) {
                 return this.EventsRepository.save({
                     ...event,
                     eventStatus: status,

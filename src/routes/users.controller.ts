@@ -96,4 +96,10 @@ export class UsersController {
       res.status(400).json({ message: 'Unable to get the user', error });
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Get('/:id/meal-vouchers/:month')
+  async getMealVouchers(@Request() req): Promise<number> {
+    return this.usersService.getMealVouchers(req.params.id, req.params.month);
+  }
 }

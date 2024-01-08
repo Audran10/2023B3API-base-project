@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module, ValidationPipe, forwardRef } from '@nestjs/common';
 import { UsersController } from '../routes/users.controller';
 import { UsersService } from '../providers/users.service';
 import { User } from '../models/users.entity';
