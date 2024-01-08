@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
 import { UsersModule } from './modules/users.module';
 import { User } from './models/users.entity';
 import { ProjectsModule } from './modules/projects.module';
@@ -36,4 +37,8 @@ import { EventsModule } from './modules/events.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}
