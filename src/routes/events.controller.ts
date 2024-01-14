@@ -22,7 +22,6 @@ export class EventsController {
     @Post('/:id/validate')
     async validateEvent(@Request() req: any) {
         const user = await this.usersService.findById(req.user.sub);
-        // console.log(await this.eventsService.changeStatusEvent(req.params.id, 'Accepted', user));
         return this.eventsService.changeStatusEvent(req.params.id, 'Accepted', user);
     }
 

@@ -1,6 +1,5 @@
-import { Body, Controller, Post, Res, UseGuards, Request, UnauthorizedException, NotFoundException, ConflictException, Get } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards, Request, UnauthorizedException, NotFoundException, ConflictException, Get } from "@nestjs/common";
 import { ProjectUsersService } from "../providers/project-users.service";
-import { Response } from "express";
 import { AuthGuard } from '../auth/auth.guard';
 import { addUserToProjectDto } from "../dto/project-users/add-user-to-project.dto";
 import { UsersService } from "../providers/users.service";
